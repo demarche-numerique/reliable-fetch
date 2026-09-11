@@ -11,7 +11,7 @@ module Sidekiq
     def retrieve_unit_of_work
       queues_cmd.each do |queue|
         work = Sidekiq.redis do |conn|
-          conn.rpoplpush(queue, self.class.working_queue_name(queue))
+          conn.lmove(queue, self.class.working_queue_name(queue), "right", "left")
         end
 
         return UnitOfWork.new(queue, work) if work
